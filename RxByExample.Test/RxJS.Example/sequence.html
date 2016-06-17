@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - RxJS by Example</title>
+    <link rel="stylesheet" href="./js/qunit/qunit-2.0.0.css">
+</head>
+<body>
+    <h2>Basic Sequence Operators</h2>
+    <div id="qunit"></div>
+    <div id="qunit-fixture"></div>
+    <script src="./js/qunit/qunit-2.0.0.js"></script>
+    <script src="./js/rx.all.js"></script>
+    <script>
+        //QUnit.log(function (details) {
+        //    console.log("Log: ", details.result, details.message);
+        //});
+
+        //QUnit.config.collapse = false;
+        function mul2(data) {
+            return 2 * data;
+        }
+
+        QUnit.config.autostart = false;
+        var data = [];
+        for (var i = 1; i <= 100; i++) {
+            data.push(i);
+        }
+
+        // Map
+        QUnit.test("RxJS Map", function (assert) {
+            var upper = Rx.Observable
+                          .fromArray(data)
+                          .map(mul2);
+            upper.subscribe(function (d) {
+                assert.ok(true, d);
+            });
+        });
+        
+        QUnit.test("JavaScrit Map", function (assert) {
+            var upper = data.map(mul2);
+            upper.forEach(function (d) {
+                assert.ok(true, d);
+            });
+        });
+
+        // Fillter
+        function isEven(d) {
+            return d % 2 == 0;
+        }
+        QUnit.test("RxJS Fillter", function (assert) {
+            var even = Rx.Observable
+                         .fromArray(data)
+                         .filter(isEven);
+            even.subscribe(function (d) {
+                assert.ok(true, d);
+            });
+        });
+        QUnit.test("JavaScrit Fillter", function (assert) {
+            var even = data.filter(isEven);
+            even.forEach(function (d) {
+                assert.ok(true, d);
+            });
+        });
+
+        // Reduce
+        QUnit.test("RxJS Fillter", function (assert) {
+            var sum = Rx.Observable
+                         .fromArray(data)
+                         .reduce(function (result, _) {
+                             return result + _;
+                         });
+            sum.subscribe(function (d) {
+                assert.ok(true, d);
+            });
+        });
+        QUnit.test("JavaScrit Reduce", function (assert) {
+            var sum = data.reduce(function (x, y) {
+                return x + y;
+            });
+            assert.ok(true, sum);
+        });
+
+        // Aggregate
+        QUnit.test("RxJS Aggregate", function (assert) {
+            var avg = Rx.Observable
+                         .fromArray(data)
+                         .reduce(function (prev, _) {
+                             return {
+                                 sum: prev.sum + _,
+                                 count: prev.count + 1
+                             };
+                         }, { sum: 0, count: 0 })
+                         .map(function (d) {
+                             return d.sum / d.count;
+                         });
+            avg.subscribe(function (d) {
+                assert.ok(true, d);
+                
+            });
+        });
+
+        QUnit.start();
+
+        // Aggregate Infinite Observables
+        var avg = Rx.Observable.interval(1000)
+                    .map(function (d) {
+                        return Math.random() * 100;
+                    })
+                    .scan(function (prev, cur) {
+                        return {
+                            sum: prev.sum + cur,
+                            count: prev.count + 1
+                        };
+                    }, { sum: 0, count: 0 })
+                    .map(function (o) {
+                        return o.sum / o.count;
+                    });
+        var subscription = avg.subscribe(function (x) {
+            console.log(x);
+        });
+
+        function concatAll(source) {
+            return source.reduce(function (a, b) {
+                return a.concat(b);
+            });
+        }
+
+        var source = [[1, 2], [3, 4, 5], [6, 7, 8, 9], [10]];
+        source = concatAll(source);
+        console.log(source);
+
+        // Canceling Sequences
+    </script>
+</body>
+</html>
