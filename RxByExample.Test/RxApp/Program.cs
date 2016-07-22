@@ -38,6 +38,17 @@ namespace RxApp
 
         static void Main(string[] args)
         {
+            Observable.Start(() =>
+            {
+                return 5;
+            })
+            .Subscribe(Console.WriteLine);
+
+            Console.ReadKey();
+        }
+
+        static void Exmaple01()
+        {
             var windowIdx = 0;
             var source = Observable.Interval(TimeSpan.FromSeconds(1)).Take(10);
             source.Window(3)
@@ -52,8 +63,6 @@ namespace RxApp
                 () => Console.WriteLine("{0} Completed", windowName));
             },
             () => Console.WriteLine("Completed"));
-
-            Console.ReadKey();
         }
 
         public static void Dump<T>(this IObservable<T> source, string name)
